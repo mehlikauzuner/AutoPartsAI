@@ -2,6 +2,7 @@
 from pathlib import Path
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi.responses import FileResponse
 from PIL import UnidentifiedImageError
 
 from src.models.vehicle import Vehicle
@@ -15,6 +16,11 @@ app = FastAPI(
     description="Automotive Spare Parts Workflow Automation System",
     version="0.1.0",
 )
+
+
+@app.get("/chat", response_class=FileResponse, include_in_schema=False)
+def chat_page():
+    return FileResponse(Path(__file__).with_name("chat.html"))
 
 
 @app.get("/")
