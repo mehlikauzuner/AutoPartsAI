@@ -1,56 +1,56 @@
 # AutoPartsAI
 
-AutoPartsAI, araç ruhsatı görsellerinden araç bilgilerini okuyup parça talebi sürecine temel oluşturmayı amaçlayan bir Python/FastAPI prototipidir.
+AutoPartsAI is a Python/FastAPI prototype that reads vehicle information from registration document images and provides a starting point for spare parts requests.
 
-## Mevcut özellikler
+## Current features
 
-- Ruhsat görselinden OCR ile VIN, marka, model, model yılı, motor hacmi ve yakıt türünü çıkarmayı dener.
-- Sohbet arayüzü: `/chat`
-- API belgeleri ve deneme sayfası: `/docs`
-- Sağlık kontrolü: `/health`
-- Araç ve parça talebi verilerini doğrulayan API uç noktaları
+- Attempts to extract the VIN, make, model, model year, engine displacement, and fuel type from a registration image using OCR.
+- Chat-style upload interface: `/chat`
+- API documentation and interactive page: `/docs`
+- Health check: `/health`
+- API endpoints that validate vehicle and part-request data
 
-Araç ve parça talepleri şu an veritabanına kaydedilmiyor. Parça kataloğu, fiyat ve depo entegrasyonları henüz uygulanmadı. OCR sonuçlarını kullanmadan önce kontrol edin; örnek ruhsat görselindeki VIN test amaçlıdır.
+Vehicle and part requests are not stored in a database yet. The parts catalog, pricing, and warehouse integrations have not been implemented. Review OCR results before using them; the VIN in the sample registration image is test data.
 
-## Gereksinimler
+## Requirements
 
 - Python 3
 - Tesseract OCR
-- Tesseract Türkçe dil verisi (`tur`)
+- Tesseract Turkish language data (`tur`)
 
 ### macOS
 
-Homebrew ile Tesseract ve ek dil verilerini kurun:
+Install Tesseract and its additional language data with Homebrew:
 
 ```bash
 brew install tesseract tesseract-lang
 ```
 
-Tesseract’ın çalıştığını ve Türkçe verisinin kurulduğunu kontrol edin:
+Verify that Tesseract and the Turkish language data are available:
 
 ```bash
 tesseract --version
 tesseract --list-langs
 ```
 
-Listede `tur` görünmelidir. Homebrew’un temel Tesseract paketi İngilizce ve yön verisi içerir; Türkçe gibi ek diller `tesseract-lang` paketiyle gelir. [Tesseract paketi](https://formulae.brew.sh/formula/tesseract) · [Ek dil verileri](https://formulae.brew.sh/formula/tesseract-lang)
+The output should include `tur`. The base Homebrew Tesseract package includes English and orientation data; additional languages such as Turkish are provided by `tesseract-lang`. See the [Tesseract formula](https://formulae.brew.sh/formula/tesseract) and [additional language data formula](https://formulae.brew.sh/formula/tesseract-lang).
 
 ### Windows
 
-1. [Tesseract kurulum belgelerindeki Windows yönergelerini](https://tesseract-ocr.github.io/tessdoc/Installation.html) izleyerek Tesseract’ı yükleyin. Kurulumdan sonra `tesseract.exe` yolu genellikle `C:\Program Files\Tesseract-OCR\tesseract.exe` olur.
-2. Türkçe eğitim verisi kurulumda yoksa [Tesseract dil dosyalarından](https://tesseract-ocr.github.io/tessdoc/Data-Files.html) `tur.traineddata` dosyasını indirin ve Tesseract’ın `tessdata` klasörüne koyun. Kurulum yolu genellikle `C:\Program Files\Tesseract-OCR\tessdata` olur.
-3. PowerShell’i yeniden açın ve doğrulayın:
+1. Install Tesseract by following the [Windows instructions in the Tesseract installation guide](https://tesseract-ocr.github.io/tessdoc/Installation.html). The executable is commonly located at `C:\Program Files\Tesseract-OCR\tesseract.exe`.
+2. If Turkish language data was not included during installation, download `tur.traineddata` from the [Tesseract language data files](https://tesseract-ocr.github.io/tessdoc/Data-Files.html) and place it in Tesseract's `tessdata` folder. This is commonly `C:\Program Files\Tesseract-OCR\tessdata`.
+3. Reopen PowerShell and verify the installation:
 
 ```powershell
 tesseract --version
 tesseract --list-langs
 ```
 
-Listede `tur` görünmelidir. Kurulum klasörü PATH içinde değilse aşağıdaki Tesseract yol ayarını yapın.
+The output should include `tur`. If the Tesseract installation folder is not on `PATH`, configure the executable path as described below.
 
-## Python ortamını kurma
+## Set up the Python environment
 
-Terminali/PowerShell’i `requirements.txt` dosyasının bulunduğu `AutoPartsAI` proje klasöründe açın.
+Open Terminal or PowerShell in the `AutoPartsAI` project folder, the folder that contains `requirements.txt`.
 
 ### macOS
 
@@ -68,60 +68,60 @@ py -3 -m venv .venv
 python -m pip install -r requirements.txt
 ```
 
-PowerShell sanal ortamı etkinleştirmeyi engellerse Komut İstemi’ni açıp şunu kullanabilirsiniz:
+If PowerShell prevents activation, open Command Prompt and run:
 
 ```bat
 .venv\Scripts\activate.bat
 ```
 
-## Tesseract yolunu ayarlama (gerekirse)
+## Configure the Tesseract path (if needed)
 
-Terminalde `tesseract --version` çalışıyorsa ve Tesseract PATH içindeyse `.env` dosyası gerekmez.
+No `.env` file is needed if `tesseract --version` works in your terminal and Tesseract is available on `PATH`.
 
-Tesseract PATH içinde değilse `.env.example` dosyasını `.env` adıyla kopyalayın ve işletim sisteminize uygun `TESSERACT_CMD` satırının başındaki `#` işaretini kaldırın. Gerekirse yolu kendi kurulumunuza göre değiştirin.
+If it is not on `PATH`, copy `.env.example` to `.env` and uncomment the `TESSERACT_CMD` line for your operating system. Update the path if Tesseract is installed elsewhere.
 
-macOS’ta Tesseract yolunu görmek için:
+To find the Tesseract path on macOS:
 
 ```bash
 which tesseract
 ```
 
-`.env` dosyası proje kökünde, yani `requirements.txt` ile aynı klasörde olmalıdır.
+Keep `.env` in the project root, next to `requirements.txt`.
 
-## Uygulamayı başlatma
+## Run the application
 
-Sanal ortam etkinken proje klasöründe çalıştırın:
+With the virtual environment active, run this command from the project folder:
 
 ```bash
 uvicorn src.api.main:app --reload
 ```
 
-Tarayıcıda şu adresleri açın:
+Open these addresses in your browser:
 
-- Sohbet arayüzü: <http://127.0.0.1:8000/chat>
-- API belgeleri: <http://127.0.0.1:8000/docs>
-- Sağlık kontrolü: <http://127.0.0.1:8000/health>
+- Chat interface: <http://127.0.0.1:8000/chat>
+- API documentation: <http://127.0.0.1:8000/docs>
+- Health check: <http://127.0.0.1:8000/health>
 
-Sohbet ekranında **Görsel seç** düğmesine basın, ruhsat görselini seçin ve **Gönder**’e tıklayın. Okunan araç bilgileri sohbet içinde görünür. Alanlardan biri okunamazsa daha net ve düz bir fotoğraf deneyin; dönen bilgileri kontrol edin.
+On the chat page, select a registration image and click **Send**. The extracted vehicle details appear in the conversation. If some fields cannot be read, try a clearer, straight-on image and review the results.
 
-Sunucuyu durdurmak için terminalde `Ctrl+C` tuşlarına basın.
+Stop the server with `Ctrl+C` in the terminal.
 
-## API uç noktaları
+## API endpoints
 
-| Yöntem | Adres | Açıklama |
+| Method | Path | Description |
 | --- | --- | --- |
-| `GET` | `/` | API durum mesajı |
-| `GET` | `/health` | Sağlık kontrolü |
-| `GET` | `/chat` | Sohbet arayüzü |
-| `POST` | `/vehicles` | Araç bilgisini doğrular ve geri döndürür |
-| `POST` | `/part-requests` | Parça talebini doğrular ve geri döndürür |
-| `POST` | `/vehicles/upload-registration` | Ruhsat görselini OCR ile işler |
+| `GET` | `/` | API status message |
+| `GET` | `/health` | Health check |
+| `GET` | `/chat` | Chat interface |
+| `POST` | `/vehicles` | Validates and returns vehicle information |
+| `POST` | `/part-requests` | Validates and returns a part request |
+| `POST` | `/vehicles/upload-registration` | Processes a registration image with OCR |
 
-Ayrıntılı istek ve yanıt örnekleri `/docs` sayfasındadır.
+See `/docs` for request and response examples.
 
-## Testleri çalıştırma
+## Run the tests
 
-Sanal ortam etkinken:
+Activate the virtual environment first.
 
 **macOS:**
 
@@ -135,17 +135,17 @@ python3 -m pytest
 python -m pytest
 ```
 
-## Proje yapısı
+## Project structure
 
 ```text
-config/                  Uygulama yapılandırması
-src/api/                 FastAPI uç noktaları ve sohbet arayüzü
-src/models/              Araç ve parça talebi veri modelleri
-src/vehicle_detection/   OCR ve ruhsat alanı ayrıştırma
-src/parts_lookup/        Parça arama modülü (henüz uygulanmadı)
-src/pricing/             Fiyat modülü (henüz uygulanmadı)
-src/cross_reference/     Muadil parça modülü (henüz uygulanmadı)
-src/warehouse/           Depo modülü (henüz uygulanmadı)
-data/                    Örnek görseller
-tests/                   API ve model testleri
+config/                  Application configuration
+src/api/                 FastAPI endpoints and chat interface
+src/models/              Vehicle and part-request models
+src/vehicle_detection/   OCR and registration-field parsing
+src/parts_lookup/        Parts lookup module (not implemented yet)
+src/pricing/             Pricing module (not implemented yet)
+src/cross_reference/     Part cross-reference module (not implemented yet)
+src/warehouse/           Warehouse module (not implemented yet)
+data/                    Local test images (ignored by Git)
+tests/                   API and model tests
 ```
