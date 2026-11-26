@@ -1,4 +1,4 @@
-# Python virtual environments
+﻿# Python virtual environments
 .venv/
 venv/
 
@@ -30,3 +30,6 @@ Thumbs.db
 build/
 dist/
 *.egg-info/
+
+# Yerel test görselleri
+data/
