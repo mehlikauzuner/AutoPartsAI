@@ -34,3 +34,13 @@ def test_create_part_request():
     })
     assert response.status_code == 200  # Basarili istek
     assert response.json()["quantity"] == 2  # Dogru miktar
+
+
+def test_chat_page():
+    response = client.get("/chat")
+
+    assert response.status_code == 200
+    assert "text/html" in response.headers["content-type"]
+    assert "AutoPartsAI" in response.text
+    assert 'id="fileInput"' in response.text
+    assert "/vehicles/upload-registration" in response.text

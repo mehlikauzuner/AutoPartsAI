@@ -4,6 +4,15 @@ from typing import Optional
 from src.models.vehicle import Vehicle
 
 
+def normalize_turkish_characters(text: str) -> str:
+    """OCR metnindeki Türkçe harfleri düzenli ifadeler için sadeleştirir."""
+    return text.translate(str.maketrans({
+        "Ç": "C", "ç": "c", "Ğ": "G", "ğ": "g",
+        "İ": "I", "ı": "i", "Ö": "O", "ö": "o",
+        "Ş": "S", "ş": "s", "Ü": "U", "ü": "u",
+    }))
+
+
 def extract_vin(text: str) -> Optional[str]:
     """OCR metninden 17 karakterli VIN numarasini cikarir."""
 
@@ -25,6 +34,9 @@ def extract_vin(text: str) -> Optional[str]:
 def extract_vehicle_info(text: str) -> Vehicle:
     """OCR metninden arac bilgilerini cikarir ve Vehicle nesnesi olusturur."""
 
+    # Türkçe harfleri sadeleştirerek ŞASİ NO ve TİP etiketlerini eşleştir.
+    text = normalize_turkish_characters(text)
+
     # Hem sentetik belge hem ruhsat formatindaki alanlari tanimla
     vin = extract_vin(text)
     brand_match = re.search(
@@ -42,6 +54,16 @@ def extract_vehicle_info(text: str) -> Vehicle:
         text,
         re.IGNORECASE
     )
+    engine_match = re.search(
+        r"MOTOR\s*HACMI.{0,40}?(\d{3,5}\s*cm(?:3|³|\?)?)",
+        text,
+        re.IGNORECASE
+    )
+    fuel_match = re.search(
+        r"YAKIT\s*CINSI\s*[:|]?\s*([A-Za-z]+)",
+        text,
+        re.IGNORECASE
+    )
 
     # Gerekli bilgilerden biri eksikse hata ver
     if not all([vin, brand_match, model_match, year_match]):
@@ -52,5 +74,7 @@ def extract_vehicle_info(text: str) -> Vehicle:
         vin=vin,
         brand=brand_match.group(1).strip(),
         model=model_match.group(1).strip(),
-        year=int(year_match.group(1))
+        year=int(year_match.group(1)),
+        engine=engine_match.group(1).strip().replace("?", "³") if engine_match else None,
+        fuel_type=fuel_match.group(1).strip() if fuel_match else None,
     )
